@@ -603,6 +603,17 @@
                 <p>Sua avaliação foi enviada com sucesso.<br>Agradecemos por ajudar a melhorar nosso atendimento!</p>
             </div>
 
+            <!-- Already Answered Screen -->
+            <div class="success-screen" id="alreadyAnsweredScreen">
+                <div class="success-icon" style="background: linear-gradient(135deg, #d4af37 0%, #b8960c 100%);">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                </div>
+                <h2>Pesquisa já respondida</h2>
+                <p>Você já respondeu esta pesquisa de satisfação.<br>Agradecemos sua participação!</p>
+            </div>
+
             <!-- Loading overlay -->
             <div class="loading-overlay" id="loadingOverlay">
                 <div class="spinner"></div>
@@ -616,6 +627,18 @@
     </div>
 
     <script>
+        // Check if survey was already answered for this conversation
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const conversaId = urlParams.get('conversa_id');
+
+            if (conversaId && localStorage.getItem('pesquisa_respondida_' + conversaId)) {
+                document.getElementById('progressContainer').style.display = 'none';
+                document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+                document.getElementById('alreadyAnsweredScreen').classList.add('active');
+            }
+        })();
+
         let currentSlide = 0;
         const totalSlides = 5; // 0=welcome, 1-4=perguntas
         const totalSteps = 4;
@@ -705,6 +728,10 @@
                 });
 
                 if (response.ok) {
+                    // Mark as answered in localStorage
+                    if (conversa_id) {
+                        localStorage.setItem('pesquisa_respondida_' + conversa_id, 'true');
+                    }
                     document.getElementById('loadingOverlay').classList.remove('active');
                     document.getElementById('progressContainer').style.display = 'none';
                     document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
